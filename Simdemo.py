@@ -3,7 +3,7 @@ import random
 def SimulatorInVal(input,oldVal,offVal):
     
     #constants to be corrected by trial end error
-    K = 0.08
+    K = 0.2
     U = 0.3
 
     delta = input-oldVal
