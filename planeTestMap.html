@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_f7d1e87fae221bd8cec31e57bd4adc16 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_f7d1e87fae221bd8cec31e57bd4adc16" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_f7d1e87fae221bd8cec31e57bd4adc16 = L.map(
+                "map_f7d1e87fae221bd8cec31e57bd4adc16",
+                {
+                    center: [41.0, -71.0],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 4,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_919f01cd77ed850ddfd4d22e31edf835 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_919f01cd77ed850ddfd4d22e31edf835.addTo(map_f7d1e87fae221bd8cec31e57bd4adc16);
+        
+    
+            var marker_8b944cce98ce83771e92fee6b2a447d3 = L.marker(
+                [41.0, -72.0],
+                {}
+            ).addTo(map_f7d1e87fae221bd8cec31e57bd4adc16);
+        
+    
+            var icon_47e369204c29ac031d47ed068f8920b7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-180", "icon": "plane", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_8b944cce98ce83771e92fee6b2a447d3.setIcon(icon_47e369204c29ac031d47ed068f8920b7);
+        
+    
+            marker_8b944cce98ce83771e92fee6b2a447d3.bindTooltip(
+                `<div>
+                     Plane going to Merica
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_3ba07e4b8332302051fa20959b244045 = L.marker(
+                [41.0, -75.0],
+                {}
+            ).addTo(map_f7d1e87fae221bd8cec31e57bd4adc16);
+        
+    
+            var icon_bb871088e0bf73e12f286e5fce04b3e1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-45", "icon": "plane", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_3ba07e4b8332302051fa20959b244045.setIcon(icon_bb871088e0bf73e12f286e5fce04b3e1);
+        
+    
+            marker_3ba07e4b8332302051fa20959b244045.bindTooltip(
+                `<div>
+                     Plane going to Somewhere Else
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_f2d741cb25bddff12df0cdbf7041c8c1 = L.marker(
+                [41.0, -78.0],
+                {}
+            ).addTo(map_f7d1e87fae221bd8cec31e57bd4adc16);
+        
+    
+            var icon_be7b52f47c919302b1dc4c6f95acbd0c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-90", "icon": "plane", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_f2d741cb25bddff12df0cdbf7041c8c1.setIcon(icon_be7b52f47c919302b1dc4c6f95acbd0c);
+        
+    
+            marker_f2d741cb25bddff12df0cdbf7041c8c1.bindTooltip(
+                `<div>
+                     HELP HELP HELP
+                 </div>`,
+                {"sticky": true}
+            );
+        
+</script>
+</html>
