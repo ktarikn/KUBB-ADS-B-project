@@ -26,7 +26,7 @@ while( True ):
     for i in range(len(data)):
 
         plane_instance = PlaneData(data[i][0],data[i][1],data[i][3],data[i][4],data[i][5],
-                                   data[i][6],data[i][7],data[i][8],data[i][9],data[i][11],data[i][17])
+                                   data[i][6],data[i][7],data[i][8],data[i][9],data[i][11],data[i][12])
 
         if plane_instance.icao24 not in plane_icao4_data:
             plane_data.append(plane_instance)
@@ -46,7 +46,6 @@ while( True ):
     print(flight_df[['icao24', 'callsign', 'time_position']])
     print("***")
     time.sleep(5)
-
     """
             date = datetime.utcfromtimestamp(data[i][3])
             data[i][3] = date.strftime("%Y-%m-%d %H:%M:%S UTC")
