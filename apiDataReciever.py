@@ -8,8 +8,8 @@ from datetime import datetime
 
 from PlaneData import PlaneData
 
-plane_data = []
-plane_icao4_data = []
+plane_data = {}
+
 while( True ):
     # REST API QUERY
     url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574"
@@ -20,18 +20,21 @@ while( True ):
                 'on_ground', 'velocity', 'true_track', 'vertical_rate', 'sensors', 'geo_altitude', 'squawk', 'spi',
                 'position_source']
 
-    data = response['states']  # time ve states
+    data = response['states']
 
-    # Convert unix timestamps to a human-readable format
     for i in range(len(data)):
 
-        plane_instance = PlaneData(data[i][0],data[i][1],data[i][3],data[i][4],data[i][5],
-                                   data[i][6],data[i][7],data[i][8],data[i][9],data[i][11],data[i][12])
+        if data[i][0] not in plane_data:
+            plane_instance = PlaneData(data[i][0],data[i][1],data[i][3],data[i][4],data[i][5],
+                                   data[i][6],data[i][7],data[i][8],data[i][9],data[i][10],data[i][11],data[i][12])
 
-        if plane_instance.icao24 not in plane_icao4_data:
-            plane_data.append(plane_instance)
-            plane_icao4_data.append(plane_instance.icao24)
+            plane_data[data[i][0]] = plane_instance
 
+        else:
+            if data[i][8]:
+                plane_data.pop(data[i][0]) # on_ground true olunca silinir
+            else:
+                plane_data[data[i][0]].update_data(data[i][6], data[i][5], data[i][7], data[i][8], data[i][9], data[i][10])
 
     flight_df = pd.DataFrame(data)
     flight_df = flight_df.loc[:, 0:16]
