@@ -1,6 +1,7 @@
 # IMPORTING LIBRARY
 import time
 
+import folium
 import requests
 import json
 import pandas as pd
@@ -8,8 +9,13 @@ from datetime import datetime
 
 from PlaneData import PlaneData
 
+kw = {"prefix": "fa", "color": "green", "icon": "plane"}
+iconsList = [] # have each icon for a plane. plane_data and this correspond to the same index i.iconsList = [] # have each icon for a plane. plane_data and this correspond to the same index i.
 plane_data = {}
-
+isPlaneNew=False
+location=[41,-71]
+plane_instance=None
+m = folium.Map(location=location, zoom_start=2) # update later
 while( True ):
     # REST API QUERY
     url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574"
@@ -36,6 +42,17 @@ while( True ):
             else:
                 plane_data[data[i][0]].update_data(data[i][6], data[i][5], data[i][7], data[i][8], data[i][9], data[i][10])
 
+
+        if plane_instance.true_track==None:
+            plane_instance.true_track=180 # default
+        angle=int(plane_instance.true_track)
+        icon = folium.Icon(angle=angle, **kw)
+
+        folium.Marker(location=[float(data[i][6]),float(data[i][5])], icon=icon,
+                          tooltip="Sign:" + plane_instance.callsign + " Icao24: " + plane_instance.icao24 +" angle: " +str(plane_instance.true_track)).add_to(m)
+
+
+
     flight_df = pd.DataFrame(data)
     flight_df = flight_df.loc[:, 0:16]
     flight_df.columns = col_name
@@ -46,7 +63,8 @@ while( True ):
 
     # flight_df = flight_df.sort_values(by='time_position')
     # print(flight_df)
-    print(flight_df[['icao24', 'callsign', 'time_position']])
+    print(flight_df[['icao24', 'callsign', 'time_position', 'true_track']])
+    m.save("mapimiz.html")
     print("***")
     time.sleep(5)
 
