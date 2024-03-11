@@ -75,20 +75,24 @@ class MyApp(QWidget):
                 plane_data[data[i][0]] = plane_instance
 
             else:
+                plane_icao24 = data[i][0]
+
                 if data[i][8]:
-                    plane_data.pop(data[i][0])  # on_ground true olunca silinir
+                    plane_data.pop(plane_icao24)  # on_ground true olunca silinir
                 else:
-                    plane_data[data[i][0]].update_data(data[i][6], data[i][5], data[i][7], data[i][8], data[i][9],
+                    plane_data[plane_icao24].update_data(data[i][6], data[i][5], data[i][7], data[i][8], data[i][9],
                                                        data[i][10])
 
-            if plane_instance.true_track == None:
-                plane_instance.true_track = 180  # default
-            angle = int(plane_instance.true_track)
-            icon = folium.Icon(angle=angle, **kw)
+                curr_plane = plane_data[plane_icao24]
 
-            folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
-                          tooltip="Sign:" + plane_instance.callsign + " Icao24: " + plane_instance.icao24 + " angle: " + str(
-                              plane_instance.true_track)).add_to(m)
+                if curr_plane.true_track is None:
+                    curr_plane.true_track = 180  # default
+                angle = int(curr_plane.true_track)
+                icon = folium.Icon(angle=angle, **kw)
+
+                folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
+                              tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
+                                  curr_plane.true_track)).add_to(m)
 
         flight_df = pd.DataFrame(data)
         flight_df = flight_df.loc[:, 0:16]
