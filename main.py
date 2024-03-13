@@ -44,11 +44,11 @@ class MyApp(QWidget):
 
 
         # save map data to data object
-        data = io.BytesIO()
-        m.save(data, close_file=False)
+        map_data = io.BytesIO()
+        m.save(map_data, close_file=False)
 
         self.webView = QWebEngineView()
-        self.webView.setHtml(data.getvalue().decode())
+        self.webView.setHtml(map_data.getvalue().decode())
         layout.addWidget(self.webView)
 
     def setView(self, input):
@@ -69,27 +69,29 @@ class MyApp(QWidget):
         for i in range(len(data)):
 
             if data[i][0] not in plane_data:
-                plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][4], data[i][5],
-                                           data[i][6], data[i][7], data[i][8], data[i][9], data[i][10], data[i][11],
-                                           data[i][12])
+                plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][5],
+                                           data[i][6], data[i][8], data[i][9], data[i][10])
 
                 plane_data[data[i][0]] = plane_instance
 
             else:
                 if data[i][8]:
-                    plane_data.pop(data[i][0])  # on_ground true olunca silinir
+                    plane_data.pop(data[i][0])  # delete when on_ground is true
+                    continue
                 else:
-                    plane_data[data[i][0]].update_data(data[i][6], data[i][5], data[i][7], data[i][8], data[i][9],
+                    plane_data[data[i][0]].update_data(data[i][5], data[i][6], data[i][8], data[i][9],
                                                        data[i][10])
 
             if plane_data[data[i][0]].true_track is None:
                 plane_data[data[i][0]].true_track = 180  # default
+
             angle = int(plane_data[data[i][0]].true_track)
             icon = folium.Icon(angle=angle, **kw)
 
             folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
                           tooltip="Sign:" + plane_data[data[i][0]].callsign + " Icao24: " + plane_data[data[i][0]].icao24 + " angle: " + str(
                               plane_data[data[i][0]].true_track)).add_to(m)
+
 
         flight_df = pd.DataFrame(data)
         flight_df = flight_df.loc[:, 0:16]
@@ -99,14 +101,13 @@ class MyApp(QWidget):
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
 
-        # flight_df = flight_df.sort_values(by='time_position')
-        # print(flight_df)
         print(flight_df[['icao24', 'callsign', 'time_position', 'true_track']])
-        data = io.BytesIO()
-        m.save(data, close_file=False)
-        print("***")
 
-        self.webView.setHtml(data.getvalue().decode())
+        map_data = io.BytesIO()
+        m.save(map_data, close_file=False)
+        print("***")
+        self.webView.setHtml(map_data.getvalue().decode())
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
