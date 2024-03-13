@@ -8,6 +8,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView  # pip install PyQtWebEngine
 import time
 
 import folium
+from folium import FeatureGroup
 import requests
 import json
 import pandas as pd
@@ -24,7 +25,7 @@ isPlaneNew=False
 location = [40, 35]
 plane_instance=None
 
-m = folium.Map(location=location, zoom_start=6)
+n = folium.Map(location=location, zoom_start=6)
 class MyApp(QWidget):
     webView = object()
 
@@ -45,7 +46,7 @@ class MyApp(QWidget):
 
         # save map data to data object
         map_data = io.BytesIO()
-        m.save(map_data, close_file=False)
+        n.save(map_data, close_file=False)
 
         self.webView = QWebEngineView()
         self.webView.setHtml(map_data.getvalue().decode())
@@ -53,10 +54,15 @@ class MyApp(QWidget):
 
     def setView(self, input):
         self.webView.setHtml(input)
+
     def update_map(self):
         # REST API QUERY
+
+        m = folium.Map(location=location, zoom_start=6)
         url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574"
         response = requests.get(url_data).json()
+        marker_group = folium.FeatureGroup(name="Markers")
+        m.add_child(marker_group)
 
         # LOAD TO PANDAS DATAFRAME
         col_name = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'long', 'lat',
@@ -90,7 +96,7 @@ class MyApp(QWidget):
 
             folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
                           tooltip="Sign:" + plane_data[data[i][0]].callsign + " Icao24: " + plane_data[data[i][0]].icao24 + " angle: " + str(
-                              plane_data[data[i][0]].true_track)).add_to(m)
+                              plane_data[data[i][0]].true_track)).add_to(marker_group)
 
 
         flight_df = pd.DataFrame(data)
@@ -107,6 +113,7 @@ class MyApp(QWidget):
         m.save(map_data, close_file=False)
         print("***")
         self.webView.setHtml(map_data.getvalue().decode())
+
 
 
 if __name__ == '__main__':
