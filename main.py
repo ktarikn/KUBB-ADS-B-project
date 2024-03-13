@@ -34,12 +34,13 @@ class MyApp(QWidget):
         self.window_width, self.window_height = 1600, 900
         self.setMinimumSize(self.window_width, self.window_height)
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_map)
-        self.timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
+        timer = QTimer(self)
+        timer.timeout.connect(self.update_map)
+        timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
+
 
 
         # save map data to data object
@@ -81,14 +82,14 @@ class MyApp(QWidget):
                     plane_data[data[i][0]].update_data(data[i][6], data[i][5], data[i][7], data[i][8], data[i][9],
                                                        data[i][10])
 
-            if plane_instance.true_track == None:
-                plane_instance.true_track = 180  # default
-            angle = int(plane_instance.true_track)
+            if plane_data[data[i][0]].true_track is None:
+                plane_data[data[i][0]].true_track = 180  # default
+            angle = int(plane_data[data[i][0]].true_track)
             icon = folium.Icon(angle=angle, **kw)
 
             folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
-                          tooltip="Sign:" + plane_instance.callsign + " Icao24: " + plane_instance.icao24 + " angle: " + str(
-                              plane_instance.true_track)).add_to(m)
+                          tooltip="Sign:" + plane_data[data[i][0]].callsign + " Icao24: " + plane_data[data[i][0]].icao24 + " angle: " + str(
+                              plane_data[data[i][0]].true_track)).add_to(m)
 
         flight_df = pd.DataFrame(data)
         flight_df = flight_df.loc[:, 0:16]
@@ -114,7 +115,6 @@ if __name__ == '__main__':
             font-size: 35px;
         }
     ''')
-
     myApp = MyApp()
     myApp.show()
 
