@@ -12,14 +12,16 @@ class PlaneData:
         self.on_ground = on_ground
         self.velocity = velocity
         self.true_track = true_track
-        self.location_history = []
+        #alternative 1#self.location_history = [longitude,latitude]
+        self.location_history = (latitude,longitude)
 
 
     def update_data(self, longitude, latitude, on_ground, velocity, true_track):
         if self.latitude != latitude and self.longitude != longitude:
             self.latitude = latitude
             self.longitude = longitude
-            self.location_history.append((latitude, longitude))
+        #alternative1    #self.location_history.append((latitude, longitude))
+        self.location_history = ((latitude, longitude))
 
         self.on_ground = on_ground
         self.velocity = velocity

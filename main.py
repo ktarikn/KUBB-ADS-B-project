@@ -19,7 +19,6 @@ from PlaneData import PlaneData
 Folium in PyQt5
 """
 kw = {"prefix": "fa", "color": "green", "icon": "plane"}
-iconsList = [] # have each icon for a plane. plane_data and this correspond to the same index i.iconsList = [] # have each icon for a plane. plane_data and this correspond to the same index i.
 plane_data = {}
 isPlaneNew=False
 location = [40, 35]
@@ -74,9 +73,9 @@ class MyApp(QWidget):
 
         for i in range(len(data)):
 
+            plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][5],
+                                       data[i][6], data[i][8], data[i][9], data[i][10])
             if data[i][0] not in plane_data:
-                plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][5],
-                                           data[i][6], data[i][8], data[i][9], data[i][10])
 
                 plane_data[data[i][0]] = plane_instance
 
@@ -97,7 +96,13 @@ class MyApp(QWidget):
             folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
                           tooltip="Sign:" + plane_data[data[i][0]].callsign + " Icao24: " + plane_data[data[i][0]].icao24 + " angle: " + str(
                               plane_data[data[i][0]].true_track)).add_to(marker_group)
-
+            if plane_instance.location_history is not None:
+                folium.PolyLine(
+                    locations=[(plane_instance.latitude,plane_instance.longitude),plane_instance.location_history],
+                    color="blue",
+                    tooltip="previous path",
+                    weight=3,
+                ).add_to(m)
 
         flight_df = pd.DataFrame(data)
         flight_df = flight_df.loc[:, 0:16]
@@ -125,7 +130,9 @@ if __name__ == '__main__':
     ''')
     myApp = MyApp()
     myApp.show()
-
+    #while True:
+    #    myApp.update_map()
+    #    time.sleep(5)
 
     # time.sleep(10)
     # myApp.setView("sdflkjaf")
