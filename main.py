@@ -1,26 +1,21 @@
-import time
 import sys
 import io
-import folium  # pip install folium
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout
-from PyQt5.QtWebEngineWidgets import QWebEngineView  # pip install PyQtWebEngine
-import time
-
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 import folium
-from folium import FeatureGroup
 import requests
-import json
 import pandas as pd
-from datetime import datetime
 
 from PlaneData import PlaneData
-"""
-Folium in PyQt5
-"""
+
+#icon types
 kw = {"prefix": "fa", "color": "green", "icon": "plane"}
+uk = {"prefix": "fa", "color": "gray", "icon": "question-circle"}
+se = {"prefix": "fa", "color": "red", "icon": "medkit"}
+ob = {"prefix": "fa", "color": "gray", "icon": "exclamation-triangle"}
+
 plane_data = {}
-isPlaneNew=False
 location = [40, 35]
 plane_instance=None
 
@@ -41,8 +36,6 @@ class MyApp(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-
-
         # save map data to data object
         map_data = io.BytesIO()
         n.save(map_data, close_file=False)
@@ -56,9 +49,8 @@ class MyApp(QWidget):
 
     def update_map(self):
         # REST API QUERY
-
         m = folium.Map(location=location, zoom_start=6)
-        url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574"
+        url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574&extended=1"
         response = requests.get(url_data).json()
         marker_group = folium.FeatureGroup(name="Markers")
         m.add_child(marker_group)
@@ -67,48 +59,57 @@ class MyApp(QWidget):
         col_name = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'long', 'lat',
                     'baro_altitude',
                     'on_ground', 'velocity', 'true_track', 'vertical_rate', 'sensors', 'geo_altitude', 'squawk', 'spi',
-                    'position_source']
+                    'position_source', 'category']
 
         data = response['states']
 
         for i in range(len(data)):
-
             if data[i][0] not in plane_data:
                 plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][5],
-                                           data[i][6], data[i][8], data[i][9], data[i][10])
+                                           data[i][6], data[i][8], data[i][9], data[i][10], data[i][17])
                 plane_data[data[i][0]] = plane_instance
-
             else:
-
                 if data[i][8]:
-                    plane_data.pop(data[i][0])  # delete when on_ground is true
+                    plane_data.pop(plane_data[data[i][0]].icao24)  # delete when on_ground is true
                     continue
                 else:
                     plane_data[data[i][0]].update_data(data[i][5], data[i][6], data[i][8], data[i][9],
                                                        data[i][10])
 
-            if plane_data[data[i][0]].true_track is None:
-                plane_data[data[i][0]].true_track = 180  # default
+            curr_plane = plane_data[data[i][0]]
+            if curr_plane.true_track is None:
+                curr_plane.true_track = 180  # default
 
-            angle = int(plane_data[data[i][0]].true_track-90)
+            angle = int(curr_plane.true_track-90)
             icon = folium.Icon(angle=angle, **kw)
 
-            folium.Marker(location=[float(data[i][6]), float(data[i][5])], icon=icon,
-                          tooltip="Sign:" + plane_data[data[i][0]].callsign + " Icao24: " + plane_data[data[i][0]].icao24 + " angle: " + str(
-                              plane_data[data[i][0]].true_track)).add_to(marker_group)
+            if curr_plane.category and curr_plane.category >=0 and curr_plane.category <= 1:
+                icon = folium.Icon(angle=angle, **uk)
+            elif curr_plane.category and curr_plane.category >=2 and curr_plane.category <= 15:
+                icon = folium.Icon(angle=angle, **kw)
+            elif curr_plane.category and curr_plane.category >= 16 and curr_plane.category <= 17:
+                icon = folium.Icon(angle=angle, **se)
+            elif curr_plane.category and curr_plane.category >=18 and curr_plane.category <= 20:
+                icon = folium.Icon(angle=angle, **ob)
 
+            folium.Marker(location=[float(curr_plane.latitude), float(curr_plane.longitude)], icon=icon,
+                          tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
+                              curr_plane.true_track)).add_to(marker_group)
+            #todo
             folium.PolyLine(
-                    locations=[(plane_data[data[i][0]].latitude,plane_data[data[i][0]].longitude),plane_data[data[i][0]].location_history],
+                    locations=[(curr_plane.latitude, curr_plane.longitude), curr_plane.location_history],
                     color="blue",
                     tooltip="previous path",
                     weight=3,
                 ).add_to(m)
-            print((plane_data[data[i][0]].latitude,plane_data[data[i][0]].longitude),plane_data[data[i][0]].location_history)
+
+            print((curr_plane.latitude, curr_plane.longitude), curr_plane.location_history)
+
+        # Setting up the dataframe
         flight_df = pd.DataFrame(data)
-        flight_df = flight_df.loc[:, 0:16]
+        flight_df = flight_df.loc[:, 0:17]
         flight_df.columns = col_name
         flight_df = flight_df.fillna('No Data')  # replace NAN with No Data
-
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
 
@@ -119,8 +120,6 @@ class MyApp(QWidget):
         print("***")
         self.webView.setHtml(map_data.getvalue().decode())
 
-
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyleSheet('''
@@ -130,13 +129,6 @@ if __name__ == '__main__':
     ''')
     myApp = MyApp()
     myApp.show()
-    #while True:
-    #   myApp.update_map()
-    #   time.sleep(5)
-
-    # time.sleep(10)
-    # myApp.setView("sdflkjaf")
-
     try:
         sys.exit(app.exec_())
     except SystemExit:
