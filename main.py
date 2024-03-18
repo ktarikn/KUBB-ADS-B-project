@@ -64,6 +64,7 @@ class MyApp(QWidget):
         data = response['states']
 
         for i in range(len(data)):
+
             if data[i][0] not in plane_data:
                 plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][5],
                                            data[i][6], data[i][8], data[i][9], data[i][10], data[i][17])
@@ -103,7 +104,6 @@ class MyApp(QWidget):
                     weight=3,
                 ).add_to(m)
 
-            print((curr_plane.latitude, curr_plane.longitude), curr_plane.location_history)
 
         # Setting up the dataframe
         flight_df = pd.DataFrame(data)
