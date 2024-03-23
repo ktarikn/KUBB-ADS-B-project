@@ -9,6 +9,7 @@ from PyQt5.QtGui import QFont
 import folium
 import requests
 import pandas as pd
+import numpy as np
 
 from PlaneData import PlaneData
 
