@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QFont
 import folium
+from folium.plugins import ScrollZoomToggler
 import requests
 import pandas as pd
 import numpy as np
@@ -23,7 +24,7 @@ plane_data = {}
 location = [40, 35]
 plane_instance=None
 
-n = folium.Map(location=location, zoom_start=6)
+#n = folium.Map(location=location, zoom_start=6)
 class MyApp(QWidget):
     webView = object()
 
@@ -39,15 +40,14 @@ class MyApp(QWidget):
         self.window_width, self.window_height = 1800, 900
         self.setMinimumSize(self.window_width, self.window_height)
 
-        timer = QTimer(self)
-        timer.timeout.connect(self.update_map)
-        timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_map)
+        self.timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
 
-        
-
+        self.m = folium.Map(location=location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
         # save map data to data object
         map_data = io.BytesIO()
-        n.save(map_data, close_file=False)
+        self.m.save(map_data, close_file=False)
 
         self.webView = QWebEngineView()
         self.webView.setHtml(map_data.getvalue().decode())
@@ -70,12 +70,22 @@ class MyApp(QWidget):
         vbox.addWidget(self.button)
 
     def action(self):
-        if(not self.stopped):
+        if not self.stopped:
             self.stopped = True
             self.button.setText("Go Live")
+            self.timer.stop()
+
+            self.m.options.update({
+                'scrollWheelZoom': True
+            })
+            map_data = io.BytesIO()
+            self.m.save(map_data, close_file=False)
+            self.webView.setHtml(map_data.getvalue().decode())
         else:
             self.stopped = False
             self.button.setText("Stop to zoom")
+            self.update_map()
+            self.timer.start(5000)
 
     def setView(self, input):
         self.webView.setHtml(input)
@@ -83,12 +93,12 @@ class MyApp(QWidget):
     def update_map(self):
         # REST API QUERY
         
-        m = folium.Map(location=location, zoom_start=6)
+        self.m = folium.Map(location=location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
         url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574&extended=1"
         response = requests.get(url_data).json()
         marker_group = folium.FeatureGroup(name="Markers")
        
-        m.add_child(marker_group)
+        self.m.add_child(marker_group)
 
         # LOAD TO PANDAS DATAFRAME
         col_name = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'long', 'lat',
@@ -138,7 +148,7 @@ class MyApp(QWidget):
                     color="blue",
                     tooltip="previous path",
                     weight=3,
-                ).add_to(m)
+                ).add_to(self.m)
             print(curr_plane.location_history)
 
         # Setting up the dataframe
@@ -152,7 +162,7 @@ class MyApp(QWidget):
         print(flight_df[['icao24', 'callsign', 'time_position', 'true_track']])
 
         map_data = io.BytesIO()
-        m.save(map_data, close_file=False)
+        self.m.save(map_data, close_file=False)
         print("***")
         self.webView.setHtml(map_data.getvalue().decode())
 
@@ -165,9 +175,7 @@ if __name__ == '__main__':
     ''')
     myApp = MyApp()
     myApp.show()
-    #while True:
-    #    myApp.update_map()
-    #    time.sleep(5)
+
     try:
         sys.exit(app.exec_())
     except SystemExit:
