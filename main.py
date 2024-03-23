@@ -67,7 +67,7 @@ class MyApp(QWidget):
         self.button.setText("Stop to zoom")
         self.button.clicked.connect(self.action)
         vbox.addWidget(self.button)
-
+        
         # to avoid waiting 5 seconds for the initial map to fully load
         self.update_map()
 
@@ -86,6 +86,12 @@ class MyApp(QWidget):
         else:
             self.stopped = False
             self.button.setText("Stop to zoom")
+            self.m.options.update({
+                'scrollWheelZoom': False
+            })
+            map_data = io.BytesIO()
+            self.m.save(map_data, close_file=False)
+            self.webView.setHtml(map_data.getvalue().decode())
             self.update_map()
             self.timer.start(5000)
 
