@@ -151,7 +151,7 @@ class MyApp(QWidget):
                     tooltip="previous path",
                     weight=3,
                 ).add_to(self.m)
-            print(curr_plane.location_history)
+        #    print(curr_plane.location_history)
 
         # Setting up the dataframe
         flight_df = pd.DataFrame(data)
