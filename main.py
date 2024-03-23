@@ -1,8 +1,9 @@
 import sys
 import io
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtGui import QFont
 import folium
 import requests
 import pandas as pd
@@ -26,15 +27,20 @@ class MyApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Folium in PyQt Example')
-        self.window_width, self.window_height = 1600, 900
+        hbox = QHBoxLayout()
+        vbox = QVBoxLayout()
+        
+        
+        self.setLayout(hbox)
+        
+        self.window_width, self.window_height = 1800, 900
         self.setMinimumSize(self.window_width, self.window_height)
 
         timer = QTimer(self)
         timer.timeout.connect(self.update_map)
         timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        
 
         # save map data to data object
         map_data = io.BytesIO()
@@ -42,17 +48,43 @@ class MyApp(QWidget):
 
         self.webView = QWebEngineView()
         self.webView.setHtml(map_data.getvalue().decode())
-        layout.addWidget(self.webView)
+        hbox.addWidget(self.webView)
+        hbox.addLayout(vbox)
+        """
+        explanation = QLabel()
+        explanation.setMaximumWidth(200)
+        explanation.setWordWrap(True)
+        
+        explanation.setText("If you click 'Stop', the map won't update but you can zoom")
+        explanation.setFont(QFont("Aerial",8))
+        vbox.addWidget(explanation)
+        """
+        self.stopped = False
+        self.button = QPushButton()
+        self.button.setMaximumWidth(250)
+        self.button.setText("Stop to zoom")
+        self.button.clicked.connect(self.action)
+        vbox.addWidget(self.button)
+
+    def action(self):
+        if(not self.stopped):
+            self.stopped = True
+            self.button.setText("Go Live")
+        else:
+            self.stopped = False
+            self.button.setText("Stop to zoom")
 
     def setView(self, input):
         self.webView.setHtml(input)
 
     def update_map(self):
         # REST API QUERY
+        
         m = folium.Map(location=location, zoom_start=6)
         url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574&extended=1"
         response = requests.get(url_data).json()
         marker_group = folium.FeatureGroup(name="Markers")
+       
         m.add_child(marker_group)
 
         # LOAD TO PANDAS DATAFRAME
@@ -93,10 +125,11 @@ class MyApp(QWidget):
             elif curr_plane.category and curr_plane.category >=18 and curr_plane.category <= 20:
                 icon = folium.Icon(angle=angle, **ob)
 
-            folium.Marker(location=[float(curr_plane.latitude), float(curr_plane.longitude)], icon=icon,
+            a = folium.Marker(location=[float(curr_plane.latitude), float(curr_plane.longitude)], icon=icon,
                           tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
                               curr_plane.true_track)).add_to(marker_group)
             #todo
+        
             folium.PolyLine(
                     locations=[(curr_plane.latitude, curr_plane.longitude), curr_plane.location_history],
                     color="blue",
