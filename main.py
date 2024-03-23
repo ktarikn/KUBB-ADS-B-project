@@ -1,5 +1,7 @@
 import sys
 import io
+import time
+
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -122,7 +124,7 @@ class MyApp(QWidget):
                 icon = folium.Icon(angle=angle, **kw)
             elif curr_plane.category and curr_plane.category >= 16 and curr_plane.category <= 17:
                 icon = folium.Icon(angle=angle, **se)
-            elif curr_plane.category and curr_plane.category >=18 and curr_plane.category <= 20:
+            elif curr_plane.category and curr_plane.category >= 18 and curr_plane.category <= 20:
                 icon = folium.Icon(angle=angle, **ob)
 
             a = folium.Marker(location=[float(curr_plane.latitude), float(curr_plane.longitude)], icon=icon,
@@ -131,12 +133,12 @@ class MyApp(QWidget):
             #todo
         
             folium.PolyLine(
-                    locations=[(curr_plane.latitude, curr_plane.longitude), curr_plane.location_history],
+                    locations=[((curr_plane).location_history)[:curr_plane.idx]],
                     color="blue",
                     tooltip="previous path",
                     weight=3,
                 ).add_to(m)
-
+            print(curr_plane.location_history)
 
         # Setting up the dataframe
         flight_df = pd.DataFrame(data)
@@ -162,6 +164,9 @@ if __name__ == '__main__':
     ''')
     myApp = MyApp()
     myApp.show()
+    #while True:
+    #    myApp.update_map()
+    #    time.sleep(5)
     try:
         sys.exit(app.exec_())
     except SystemExit:
