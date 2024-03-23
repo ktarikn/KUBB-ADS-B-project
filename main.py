@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QFont
 import folium
-from folium.plugins import ScrollZoomToggler
 import requests
 import pandas as pd
 import numpy as np
@@ -68,6 +67,9 @@ class MyApp(QWidget):
         self.button.setText("Stop to zoom")
         self.button.clicked.connect(self.action)
         vbox.addWidget(self.button)
+
+        # to avoid waiting 5 seconds for the initial map to fully load
+        self.update_map()
 
     def action(self):
         if not self.stopped:
