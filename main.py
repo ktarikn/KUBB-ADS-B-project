@@ -116,7 +116,7 @@ class MyApp(QWidget):
             if curr_plane.true_track is None:
                 curr_plane.true_track = 180  # default
 
-            angle = int(curr_plane.true_track-90)
+            angle = int(curr_plane.true_track+90)
             icon = folium.Icon(angle=angle, **kw)
 
             if curr_plane.category and curr_plane.category >=0 and curr_plane.category <= 1:
