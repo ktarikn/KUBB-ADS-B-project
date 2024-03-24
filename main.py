@@ -1,7 +1,7 @@
 import sys
 import io
 import time
-
+import Simdemo
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -10,8 +10,11 @@ import folium
 import requests
 import pandas as pd
 import numpy as np
+import struct
 
 from PlaneData import PlaneData
+
+offVal = 5
 
 #icon types
 kw = {"prefix": "fa", "color": "green", "icon": "plane"}
@@ -24,6 +27,7 @@ location = [40, 35]
 plane_instance=None
 
 #n = folium.Map(location=location, zoom_start=6)
+
 class MyApp(QWidget):
     webView = object()
 
@@ -42,6 +46,10 @@ class MyApp(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_map)
         self.timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
+
+        #sim
+        self.previosSim = None
+        self.simulation = None
 
         self.m = folium.Map(location=location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
         # save map data to data object
@@ -116,6 +124,11 @@ class MyApp(QWidget):
 
         data = response['states']
 
+        #simreset
+        self.previosSim = self.simulation
+        self.simulation = np.zeros((len(data),3))
+
+
         for i in range(len(data)):
 
             if data[i][0] not in plane_data:
@@ -136,6 +149,18 @@ class MyApp(QWidget):
 
             angle = int(curr_plane.true_track+90)
             icon = folium.Icon(angle=angle, **kw)
+            
+            buf = 8-len(curr_plane.icao24)
+            newicao = buf*'0' + curr_plane.icao24
+            #sim
+            if self.previosSim is None or len(self.previosSim)<i or self.simulation[i][0] is not self.previosSim[i][0] :
+                self.simulation[i][0] = struct.unpack('!f',bytes.fromhex(newicao))[0]
+                self.simulation[i][1] = Simdemo.SimulatorInVal(float(curr_plane.latitude),float(curr_plane.latitude),offVal)
+                self.simulation[i][2] = Simdemo.SimulatorInVal(float(curr_plane.longitude),float(curr_plane.longitude),offVal)
+            else:
+                self.simulation[i][1] = Simdemo.SimulatorInVal(float(curr_plane.latitude),self.previosSim[i][1],offVal)
+                self.simulation[i][2] = Simdemo.SimulatorInVal(float(curr_plane.longitude),self.previosSim[i][2],offVal)
+                
 
             if curr_plane.category and curr_plane.category >=0 and curr_plane.category <= 1:
                 icon = folium.Icon(angle=angle, **uk)
@@ -150,7 +175,7 @@ class MyApp(QWidget):
                           tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
                               curr_plane.true_track)).add_to(marker_group)
             #todo
-        
+            
             folium.PolyLine(
                     locations=[((curr_plane).location_history)[:curr_plane.idx]],
                     color="blue",
@@ -172,6 +197,7 @@ class MyApp(QWidget):
         map_data = io.BytesIO()
         self.m.save(map_data, close_file=False)
         print("***")
+        
         self.webView.setHtml(map_data.getvalue().decode())
 
 if __name__ == '__main__':
