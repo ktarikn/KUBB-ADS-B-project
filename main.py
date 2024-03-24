@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 
 from PlaneData import PlaneData
+from folium import plugins
 
 #icon types
 kw = {"prefix": "fa", "color": "green", "icon": "plane"}
