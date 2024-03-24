@@ -7,12 +7,14 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QFont
 import folium
+from folium import plugins
 import requests
 import pandas as pd
 import numpy as np
 import struct
 
 from PlaneData import PlaneData
+from folium import plugins
 
 offVal = 5
 
@@ -163,19 +165,65 @@ class MyApp(QWidget):
                 
 
             if curr_plane.category and curr_plane.category >=0 and curr_plane.category <= 1:
-                icon = folium.Icon(angle=angle, **uk)
+                icon = folium.plugins.BeautifyIcon(
+                    icon='question-circle',
+                    border_color='transparent',
+                    background_color='transparent',
+                    border_width=1,
+                    text_color='#003EFF',
+                    inner_icon_style='color: gray; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
+                )
             elif curr_plane.category and curr_plane.category >=2 and curr_plane.category <= 15:
-                icon = folium.Icon(angle=angle, **kw)
+                icon = folium.plugins.BeautifyIcon(
+                    icon='plane',
+                    border_color='transparent',
+                    background_color='transparent',
+                    border_width=1,
+                    text_color='#003EFF',
+                    inner_icon_style='color: #4829d6; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
+                )
             elif curr_plane.category and curr_plane.category >= 16 and curr_plane.category <= 17:
-                icon = folium.Icon(angle=angle, **se)
+                icon = folium.plugins.BeautifyIcon(
+                    icon='medkit',
+                    border_color='transparent',
+                    background_color='transparent',
+                    border_width=1,
+                    text_color='#003EFF',
+                    inner_icon_style='color: red; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
+                )
             elif curr_plane.category and curr_plane.category >= 18 and curr_plane.category <= 20:
-                icon = folium.Icon(angle=angle, **ob)
+                icon = folium.plugins.BeautifyIcon(
+                    icon='exclamation-triangle',
+                    border_color='transparent',
+                    background_color='transparent',
+                    border_width=1,
+                    text_color='#003EFF',
+                    inner_icon_style='color: yellow; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
+                )
+            else :
+                icon = folium.plugins.BeautifyIcon(
+                    icon='plane',
+                    border_color='transparent',
+                    background_color='transparent',
+                    border_width=1,
+                    text_color='#003EFF',
+                    inner_icon_style='color: #4A4F4F; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
+                )
 
+            folium.Marker(
+                location=[float(curr_plane.latitude), float(curr_plane.longitude)],
+                icon=icon,
+                tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
+                    curr_plane.true_track)
+            ).add_to(marker_group)
+
+
+            """
             a = folium.Marker(location=[float(curr_plane.latitude), float(curr_plane.longitude)], icon=icon,
                           tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
                               curr_plane.true_track)).add_to(marker_group)
-            #todo
-            
+            """
+        
             folium.PolyLine(
                     locations=[((curr_plane).location_history)[:curr_plane.idx]],
                     color="blue",
