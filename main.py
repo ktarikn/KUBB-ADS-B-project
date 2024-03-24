@@ -16,7 +16,7 @@ import struct
 from PlaneData import PlaneData
 from folium import plugins
 
-offVal = 5
+
 
 #icon types
 kw = {"prefix": "fa", "color": "green", "icon": "plane"}
@@ -49,9 +49,7 @@ class MyApp(QWidget):
         self.timer.timeout.connect(self.update_map)
         self.timer.start(5000)  # Update map every 5 seconds (5000 milliseconds)
 
-        #sim
-        self.previosSim = None
-        self.simulation = None
+       
 
         self.m = folium.Map(location=location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
         # save map data to data object
@@ -126,9 +124,7 @@ class MyApp(QWidget):
 
         data = response['states']
 
-        #simreset
-        self.previosSim = self.simulation
-        self.simulation = np.zeros((len(data),3))
+        
 
 
         for i in range(len(data)):
@@ -153,16 +149,8 @@ class MyApp(QWidget):
             icon = folium.Icon(angle=angle, **kw)
             
             buf = 8-len(curr_plane.icao24)
-            newicao = buf*'0' + curr_plane.icao24
-            #sim
-            if self.previosSim is None or len(self.previosSim)<i or self.simulation[i][0] is not self.previosSim[i][0] :
-                self.simulation[i][0] = struct.unpack('!f',bytes.fromhex(newicao))[0]
-                self.simulation[i][1] = Simdemo.SimulatorInVal(float(curr_plane.latitude),float(curr_plane.latitude),offVal)
-                self.simulation[i][2] = Simdemo.SimulatorInVal(float(curr_plane.longitude),float(curr_plane.longitude),offVal)
-            else:
-                self.simulation[i][1] = Simdemo.SimulatorInVal(float(curr_plane.latitude),self.previosSim[i][1],offVal)
-                self.simulation[i][2] = Simdemo.SimulatorInVal(float(curr_plane.longitude),self.previosSim[i][2],offVal)
-                
+            
+               
 
             if curr_plane.category and curr_plane.category >=0 and curr_plane.category <= 1:
                 icon = folium.plugins.BeautifyIcon(
