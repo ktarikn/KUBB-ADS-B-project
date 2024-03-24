@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QFont
 import folium
+from folium import plugins
 import requests
 import pandas as pd
 import numpy as np
@@ -180,7 +181,7 @@ class MyApp(QWidget):
                     background_color='transparent',
                     border_width=1,
                     text_color='#003EFF',
-                    inner_icon_style='color: #2a1780; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
+                    inner_icon_style='color: #4A4F4F; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
                 )
 
             folium.Marker(
