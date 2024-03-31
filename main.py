@@ -40,6 +40,7 @@ class MyApp(QWidget):
         self.zoom_start= 6
         self.location = [40, 35]
         self.pursued=False
+        self.simulated = False
         self.data = data = []
         self.setWindowTitle('Folium in PyQt Example')
         hbox = QHBoxLayout()
@@ -81,6 +82,11 @@ class MyApp(QWidget):
         self.icaobutton.setText("PursueIcao")
         vbox.addWidget(self.icaobutton)
 
+        self.simbutton = QPushButton()
+        self.simbutton.clicked.connect(self.simulate)
+        self.simbutton.setText("Simulate")
+        vbox.addWidget(self.simbutton)
+
         self.stopped = False
         self.button = QPushButton()
         self.button.setMaximumWidth(250)
@@ -91,6 +97,13 @@ class MyApp(QWidget):
         # to avoid waiting 5 seconds for the initial map to fully load
         self.update_map()
 
+    def simulate(self):
+        if(self.simulated):
+            self.simulated=False
+            self.simbutton.setText("Simulate")
+        else:
+            self.simulated=True
+            self.simbutton.setText("Stop Simu")
     def pursueIcao(self):
         
         if(not self.pursued):
@@ -174,7 +187,7 @@ class MyApp(QWidget):
             if curr_plane.true_track is None:
                 curr_plane.true_track = 180  # default
 
-            angle = int(curr_plane.true_track+90)
+            angle = int(curr_plane.true_track-90)
             icon = folium.Icon(angle=angle, **kw)
             
             buf = 8-len(curr_plane.icao24)
@@ -226,27 +239,36 @@ class MyApp(QWidget):
                     text_color='#003EFF',
                     inner_icon_style='color: #4A4F4F; margin:0px;font-size:2em;transform: rotate({0}deg);'.format(angle)
                 )
+            if(not self.simulated):
+                folium.Marker(
+                    location=[float(curr_plane.latitude), float(curr_plane.longitude)],
+                    icon=icon,
+                    tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
+                        curr_plane.true_track)
+                ).add_to(marker_group)
 
-            folium.Marker(
-                location=[float(curr_plane.latitude), float(curr_plane.longitude)],
-                icon=icon,
-                tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
-                    curr_plane.true_track)
-            ).add_to(marker_group)
+
+                folium.PolyLine(
+                        locations=[((curr_plane).location_history)[:curr_plane.idx]],
+                        color="blue",
+                        tooltip="previous path",
+                        weight=3,
+                    ).add_to(self.m)
+            else:
+                folium.Marker(
+                    location=[float(curr_plane.simulatedLatitude), float(curr_plane.simulatedLongitude)],
+                    icon=icon,
+                    tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
+                        curr_plane.true_track)
+                ).add_to(marker_group)
 
 
-            """
-            a = folium.Marker(location=[float(curr_plane.latitude), float(curr_plane.longitude)], icon=icon,
-                          tooltip="Sign:" + curr_plane.callsign + " Icao24: " + curr_plane.icao24 + " angle: " + str(
-                              curr_plane.true_track)).add_to(marker_group)
-            """
-        
-            folium.PolyLine(
-                    locations=[((curr_plane).location_history)[:curr_plane.idx]],
-                    color="blue",
-                    tooltip="previous path",
-                    weight=3,
-                ).add_to(self.m)
+                folium.PolyLine(
+                        locations=[((curr_plane).simulation_history)[:curr_plane.idx]],
+                        color="blue",
+                        tooltip="previous path",
+                        weight=3,
+                    ).add_to(self.m)
         #    print(curr_plane.location_history)
 
         # Setting up the dataframe
