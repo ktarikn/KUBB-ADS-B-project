@@ -40,6 +40,7 @@ class MyApp(QWidget):
         self.zoom_start= 6
         self.location = [40, 35]
         self.pursued=False
+        self.pursuedPlane=""
         self.simulated = False
         self.data = data = []
         self.setWindowTitle('Folium in PyQt Example')
@@ -103,7 +104,7 @@ class MyApp(QWidget):
             self.simbutton.setText("Simulate")
         else:
             self.simulated=True
-            self.simbutton.setText("Stop Simu")
+            self.simbutton.setText("Stop Sim")
     def pursueIcao(self):
         
         if(not self.pursued):
@@ -111,7 +112,8 @@ class MyApp(QWidget):
             if(self.icaoInput.text() in plane_data):
                 
                 self.zoom_start=11
-                self.location=[float(plane_data[self.icaoInput.text()].latitude),float(plane_data[self.icaoInput.text()].longitude)]
+                self.pursuedPlane = self.icaoInput.text()
+                #self.location=[float(plane_data[self.icaoInput.text()].latitude),float(plane_data[self.icaoInput.text()].longitude)]
                 self.pursued=True
                 self.icaobutton.setText("Unpursue")
         else:
@@ -150,7 +152,8 @@ class MyApp(QWidget):
 
     def update_map(self):
         # REST API QUERY
-        
+        if(self.pursued and self.pursuedPlane in plane_data):
+            self.location=[float(plane_data[self.pursuedPlane].latitude),float(plane_data[self.pursuedPlane].longitude)]
         self.m = folium.Map(location=self.location, zoom_start=self.zoom_start, zoom_control=False, scrollWheelZoom=False)
         url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574&extended=1"
         response = requests.get(url_data).json()
