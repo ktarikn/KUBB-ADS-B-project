@@ -3,7 +3,7 @@ import io
 import time
 import Simdemo
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy,QLineEdit
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QFont
 import folium
@@ -25,16 +25,22 @@ se = {"prefix": "fa", "color": "red", "icon": "medkit"}
 ob = {"prefix": "fa", "color": "gray", "icon": "exclamation-triangle"}
 
 plane_data = {}
-location = [40, 35]
+
 plane_instance=None
+
+
 
 #n = folium.Map(location=location, zoom_start=6)
 
 class MyApp(QWidget):
     webView = object()
-
+    
     def __init__(self):
         super().__init__()
+        self.zoom_start= 6
+        self.location = [40, 35]
+        self.pursued=False
+        self.data = data = []
         self.setWindowTitle('Folium in PyQt Example')
         hbox = QHBoxLayout()
         vbox = QVBoxLayout()
@@ -51,7 +57,7 @@ class MyApp(QWidget):
 
        
 
-        self.m = folium.Map(location=location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
+        self.m = folium.Map(location=self.location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
         # save map data to data object
         map_data = io.BytesIO()
         self.m.save(map_data, close_file=False)
@@ -61,14 +67,20 @@ class MyApp(QWidget):
         hbox.addWidget(self.webView)
         hbox.addLayout(vbox)
         """
-        explanation = QLabel()
-        explanation.setMaximumWidth(200)
-        explanation.setWordWrap(True)
         
-        explanation.setText("If you click 'Stop', the map won't update but you can zoom")
-        explanation.setFont(QFont("Aerial",8))
-        vbox.addWidget(explanation)
+        
+        self.icaoLabel = QLabel()
+        self.icaoLabel.setText()
         """
+        self.icaoInput = QLineEdit()
+        self.icaoInput.setPlaceholderText("Enter Icao")
+        self.icaoInput.setMaximumWidth(250)
+        vbox.addWidget(self.icaoInput)
+        self.icaobutton = QPushButton()
+        self.icaobutton.clicked.connect(self.pursueIcao)
+        self.icaobutton.setText("PursueIcao")
+        vbox.addWidget(self.icaobutton)
+
         self.stopped = False
         self.button = QPushButton()
         self.button.setMaximumWidth(250)
@@ -79,6 +91,23 @@ class MyApp(QWidget):
         # to avoid waiting 5 seconds for the initial map to fully load
         self.update_map()
 
+    def pursueIcao(self):
+        
+        if(not self.pursued):
+            
+            if(self.icaoInput.text() in plane_data):
+                
+                self.zoom_start=11
+                self.location=[float(plane_data[self.icaoInput.text()].latitude),float(plane_data[self.icaoInput.text()].longitude)]
+                self.pursued=True
+                self.icaobutton.setText("Unpursue")
+        else:
+            self.zoom_start=6
+            self.location = [40,35]
+            self.icaobutton.setText("Pursue")
+            self.pursued=False
+            
+    
     def action(self):
         if not self.stopped:
             self.stopped = True
@@ -109,7 +138,7 @@ class MyApp(QWidget):
     def update_map(self):
         # REST API QUERY
         
-        self.m = folium.Map(location=location, zoom_start=6, zoom_control=False, scrollWheelZoom=False)
+        self.m = folium.Map(location=self.location, zoom_start=self.zoom_start, zoom_control=False, scrollWheelZoom=False)
         url_data = "https://betulls:481projesi@opensky-network.org/api/states/all?lamin=35.902&lomin=25.909&lamax=42.026&lomax=44.574&extended=1"
         response = requests.get(url_data).json()
         marker_group = folium.FeatureGroup(name="Markers")
@@ -122,26 +151,26 @@ class MyApp(QWidget):
                     'on_ground', 'velocity', 'true_track', 'vertical_rate', 'sensors', 'geo_altitude', 'squawk', 'spi',
                     'position_source', 'category']
 
-        data = response['states']
+        self.data = response['states']
 
         
 
 
-        for i in range(len(data)):
+        for i in range(len(self.data)):
 
-            if data[i][0] not in plane_data:
-                plane_instance = PlaneData(data[i][0], data[i][1], data[i][3], data[i][5],
-                                           data[i][6], data[i][8], data[i][9], data[i][10], data[i][17])
-                plane_data[data[i][0]] = plane_instance
+            if self.data[i][0] not in plane_data:
+                plane_instance = PlaneData(self.data[i][0], self.data[i][1], self.data[i][3], self.data[i][5],
+                                           self.data[i][6], self.data[i][8], self.data[i][9], self.data[i][10], self.data[i][17])
+                plane_data[self.data[i][0]] = plane_instance
             else:
-                if data[i][8]:
-                    plane_data.pop(plane_data[data[i][0]].icao24)  # delete when on_ground is true
+                if self.data[i][8]:
+                    plane_data.pop(plane_data[self.data[i][0]].icao24)  # delete when on_ground is true
                     continue
                 else:
-                    plane_data[data[i][0]].update_data(data[i][5], data[i][6], data[i][8], data[i][9],
-                                                       data[i][10])
+                    plane_data[self.data[i][0]].update_data(self.data[i][5], self.data[i][6], self.data[i][8], self.data[i][9],
+                                                       self.data[i][10])
 
-            curr_plane = plane_data[data[i][0]]
+            curr_plane = plane_data[self.data[i][0]]
             if curr_plane.true_track is None:
                 curr_plane.true_track = 180  # default
 
@@ -221,7 +250,7 @@ class MyApp(QWidget):
         #    print(curr_plane.location_history)
 
         # Setting up the dataframe
-        flight_df = pd.DataFrame(data)
+        flight_df = pd.DataFrame(self.data)
         flight_df = flight_df.loc[:, 0:17]
         flight_df.columns = col_name
         flight_df = flight_df.fillna('No Data')  # replace NAN with No Data
