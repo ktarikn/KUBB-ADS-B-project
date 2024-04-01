@@ -52,7 +52,7 @@ class MyApp(QWidget):
         hbox = QHBoxLayout()
         vbox = QVBoxLayout()
         
-        
+        self.setStyleSheet("background-color: #e5e6eb;") # light gray
         self.setLayout(hbox)
         
         self.window_width, self.window_height = 1800, 900
@@ -79,22 +79,101 @@ class MyApp(QWidget):
         self.icaoLabel = QLabel()
         self.icaoLabel.setText()
         """
+
+        # b1b3bd, hover a1a3ad, pressed 9799a1, text 46464a original gray colors for buttons
+        line_style = """
+                        QLineEdit {
+                            background-color: #f0f0f0; 
+                            border: 2px solid #f0f0f0; 
+                            border-radius: 10px;
+                            padding: 15px 32px;
+                            color: #46464a; 
+                            font-size: 28px;
+                            text-align: center;
+                        }
+                        ::placeholder { text-align: center; }
+                    """
+
         self.icaoInput = QLineEdit()
+        self.icaoInput.setStyleSheet(line_style)
         self.icaoInput.setPlaceholderText("Enter Icao")
         self.icaoInput.setMaximumWidth(250)
         vbox.addWidget(self.icaoInput)
         self.icaobutton = QPushButton()
+        self.icaobutton.setStyleSheet("""
+                        QPushButton {
+                            background-color: #FF343C;
+                            border: none;
+                            color: #641518;
+                            padding: 15px 32px;
+                            text-align: center;
+                            text-decoration: none;
+                            display: inline-block;
+                            font-size: 28px;
+                            margin: 4px 2px;
+                            cursor: pointer;
+                            border-radius: 10px;
+                        }
+                        QPushButton:hover {
+                            background-color: #D82D33;
+                        }
+                        QPushButton:pressed {
+                            background-color: #C82A30; 
+                        }
+                    """)
         self.icaobutton.clicked.connect(self.pursueIcao)
         self.icaobutton.setText("PursueIcao")
         vbox.addWidget(self.icaobutton)
 
         self.simbutton = QPushButton()
+        self.simbutton.setStyleSheet("""
+                        QPushButton {
+                            background-color: #0DBBBB;
+                            border: none;
+                            color: #005252;
+                            padding: 15px 32px;
+                            text-align: center;
+                            text-decoration: none;
+                            display: inline-block;
+                            font-size: 28px;
+                            margin: 4px 2px;
+                            cursor: pointer;
+                            border-radius: 10px;
+                        }
+                        QPushButton:hover {
+                            background-color: #03A6A6;
+                        }
+                        QPushButton:pressed {
+                            background-color: #019393; 
+                        }
+                    """)
         self.simbutton.clicked.connect(self.simulate)
         self.simbutton.setText("Simulate")
         vbox.addWidget(self.simbutton)
 
         self.stopped = False
         self.button = QPushButton()
+        self.button.setStyleSheet("""
+                        QPushButton {
+                            background-color: #86B75F;
+                            border: none;
+                            color: #41582E;
+                            padding: 15px 32px;
+                            text-align: center;
+                            text-decoration: none;
+                            display: inline-block;
+                            font-size: 28px;
+                            margin: 4px 2px;
+                            cursor: pointer;
+                            border-radius: 10px;
+                        }
+                        QPushButton:hover {
+                            background-color: #7FAC5B;
+                        }
+                        QPushButton:pressed {
+                            background-color: #70994F; 
+                        }
+                    """)
         self.button.setMaximumWidth(250)
         self.button.setText("Stop to zoom")
         self.button.clicked.connect(self.action)
