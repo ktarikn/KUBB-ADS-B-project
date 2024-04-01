@@ -2,6 +2,7 @@ from datetime import datetime
 import numpy as np
 import Simdemo
 simVal = 0.1
+idx = 0
 class PlaneData:
 
     def __init__(self, icao24, callsign=None, time_position=0, longitude=0,

@@ -1,6 +1,8 @@
 import sys
 import io
 import time
+import traceback
+
 import Simdemo
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy,QLineEdit
@@ -12,6 +14,9 @@ import requests
 import pandas as pd
 import numpy as np
 import struct
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 from PlaneData import PlaneData
 from folium import plugins
@@ -108,7 +113,7 @@ class MyApp(QWidget):
     def pursueIcao(self):
         
         if(not self.pursued):
-            
+
             if(self.icaoInput.text() in plane_data):
                 
                 self.zoom_start=11
@@ -116,6 +121,19 @@ class MyApp(QWidget):
                 #self.location=[float(plane_data[self.icaoInput.text()].latitude),float(plane_data[self.icaoInput.text()].longitude)]
                 self.pursued=True
                 self.icaobutton.setText("Unpursue")
+                try:
+                    plt.title("Longitude and Latitude Coordinates")
+                    plt.xlabel("latitude")
+                    plt.ylabel("longitude") #arrayin [][0] ' ı latitude tutyoruz. diğeri de longtitu' tutyor
+                    idx = plane_data.get(self.icaoInput.text()).idx
+                    latitude = [plane_data.get(self.icaoInput.text()).location_history[:idx,0]]
+                    longitude = [plane_data.get(self.icaoInput.text()).location_history[:idx, 1]]
+                    plt.plot(latitude,longitude,marker='o',linestyle="-")
+                    plt.grid(True)
+                    plt.show()
+                except Exception:
+                    print(traceback.format_exc())
+
         else:
             self.zoom_start=6
             self.location = [40,35]
@@ -291,14 +309,17 @@ class MyApp(QWidget):
         self.webView.setHtml(map_data.getvalue().decode())
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    app.setStyleSheet('''
-        QWidget {
-            font-size: 35px;
-        }
-    ''')
-    myApp = MyApp()
-    myApp.show()
+    try:
+        app = QApplication(sys.argv)
+        app.setStyleSheet('''
+            QWidget {
+                font-size: 35px;
+            }
+        ''')
+        myApp = MyApp()
+        myApp.show()
+    except Exception as e:
+        print(traceback.format_exc())
 
     try:
         sys.exit(app.exec_())
