@@ -1,27 +1,21 @@
 import sys
 import io
-import time
 import traceback
-
+from PyQt5 import QtWidgets
 import Simdemo
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton , QLabel,QSizePolicy,QLineEdit
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QSizePolicy, \
+    QLineEdit, QDesktopWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtGui import QFont
 import folium
 from folium import plugins
 import requests
 import pandas as pd
-import numpy as np
-import struct
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
-
 from PlaneData import PlaneData
-from folium import plugins
-
-
 
 #icon types
 kw = {"prefix": "fa", "color": "green", "icon": "plane"}
@@ -33,15 +27,43 @@ plane_data = {}
 
 plane_instance=None
 
-
-
 #n = folium.Map(location=location, zoom_start=6)
+
+class WelcomeWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Welcome to KUBB's project demo :3")
+        self.resize(700, 350)  # Pencere boyutunu ayarla
+        self.center()  # Pencereyi ekranın ortasına konumlandır
+
+        layout = QVBoxLayout(self)
+
+        # Açıklama metni
+        label = QLabel("Welcome to the Application!", self)
+        label.setAlignment(Qt.AlignCenter)  # Metni yatayda ortala
+        layout.addWidget(label)
+
+        # Düğme
+        self.enter_button = QPushButton("Enter", self)
+        self.enter_button.clicked.connect(self.showMainScreen)
+        layout.addWidget(self.enter_button, alignment=Qt.AlignCenter)  # Düğmeyi yatayda ortala
+
+    def center(self):
+        # Pencereyi ekranın ortasına konumlandır
+        screen = QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
+
+
+    def showMainScreen(self):
+        self.hide()  # WelcomeWindow penceresini gizle
+        self.main_window = MyApp()  # MyApp penceresini oluştur
+        self.main_window.show()  # MyApp penceresini göster
 
 class MyApp(QWidget):
     webView = object()
-    
     def __init__(self):
-        super().__init__()
+        super(MyApp, self).__init__()
         self.zoom_start= 6
         self.location = [40, 35]
         self.pursued=False
@@ -388,19 +410,7 @@ class MyApp(QWidget):
         self.webView.setHtml(map_data.getvalue().decode())
 
 if __name__ == '__main__':
-    try:
-        app = QApplication(sys.argv)
-        app.setStyleSheet('''
-            QWidget {
-                font-size: 35px;
-            }
-        ''')
-        myApp = MyApp()
-        myApp.show()
-    except Exception as e:
-        print(traceback.format_exc())
-
-    try:
-        sys.exit(app.exec_())
-    except SystemExit:
-        print('Closing Window...')
+    app = QApplication(sys.argv)
+    welcome_window = WelcomeWindow()
+    welcome_window.show()
+    sys.exit(app.exec_())
