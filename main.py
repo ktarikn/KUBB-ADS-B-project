@@ -39,7 +39,7 @@ class WelcomeWindow(QWidget):
         layout = QVBoxLayout(self)
 
         # Açıklama metni
-        label = QLabel("Welcome to the Application!", self)
+        label = QLabel("Welcome to the KUBBs-ADSB Project!\nYou can pursue Icaos to zoom on planes.\nZooming on them will allow you to see its previous location graph.", self)
         label.setAlignment(Qt.AlignCenter)  # Metni yatayda ortala
         layout.addWidget(label)
 
@@ -52,7 +52,7 @@ class WelcomeWindow(QWidget):
         # Pencereyi ekranın ortasına konumlandır
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
+        self.move((screen.width() - size.width()) // 2, (screen.height() - size.height()) // 2)
 
 
     def showMainScreen(self):
