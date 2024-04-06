@@ -74,7 +74,7 @@ class MyApp(QWidget):
         hbox = QHBoxLayout()
         vbox = QVBoxLayout()
         
-        self.setStyleSheet("background-color: #e5e6eb;") # light gray
+        self.setStyleSheet("background-color: #EFE6DD;") # light gray e5e6eb
         self.setLayout(hbox)
         
         self.window_width, self.window_height = 1800, 900
@@ -93,14 +93,18 @@ class MyApp(QWidget):
 
         self.webView = QWebEngineView()
         self.webView.setHtml(map_data.getvalue().decode())
-        hbox.addWidget(self.webView)
+
+        frame = QWidget()
+        frame.setLayout(QHBoxLayout())
+        frame.setStyleSheet("""
+                                QWidget {
+                                    border: 2px solid #AC9D8E;
+                                    border-radius: 10px;
+                                }
+                            """)
+        frame.layout().addWidget(self.webView)
+        hbox.addWidget(frame)
         hbox.addLayout(vbox)
-        """
-        
-        
-        self.icaoLabel = QLabel()
-        self.icaoLabel.setText()
-        """
 
         # b1b3bd, hover a1a3ad, pressed 9799a1, text 46464a original gray colors for buttons
         line_style = """
@@ -122,11 +126,12 @@ class MyApp(QWidget):
         self.icaoInput.setMaximumWidth(250)
         vbox.addWidget(self.icaoInput)
         self.icaobutton = QPushButton()
+        # FF343C, text 641518, hover D82D33, pressed C82A30
         self.icaobutton.setStyleSheet("""
                         QPushButton {
-                            background-color: #FF343C;
+                            background-color: #443742;
                             border: none;
-                            color: #641518;
+                            color: #9D8A9A;
                             padding: 15px 32px;
                             text-align: center;
                             text-decoration: none;
@@ -137,10 +142,10 @@ class MyApp(QWidget):
                             border-radius: 10px;
                         }
                         QPushButton:hover {
-                            background-color: #D82D33;
+                            background-color: #372D35;
                         }
                         QPushButton:pressed {
-                            background-color: #C82A30; 
+                            background-color: #272026; 
                         }
                     """)
         self.icaobutton.clicked.connect(self.pursueIcao)
@@ -148,11 +153,12 @@ class MyApp(QWidget):
         vbox.addWidget(self.icaobutton)
 
         self.simbutton = QPushButton()
+        # 0DBBBB, text 005252, hover 03A6A6, pressed 019393
         self.simbutton.setStyleSheet("""
                         QPushButton {
-                            background-color: #0DBBBB;
+                            background-color: #846C5B;
                             border: none;
-                            color: #005252;
+                            color: #3D322A;
                             padding: 15px 32px;
                             text-align: center;
                             text-decoration: none;
@@ -163,10 +169,10 @@ class MyApp(QWidget):
                             border-radius: 10px;
                         }
                         QPushButton:hover {
-                            background-color: #03A6A6;
+                            background-color: #776152;
                         }
                         QPushButton:pressed {
-                            background-color: #019393; 
+                            background-color: #645144; 
                         }
                     """)
         self.simbutton.clicked.connect(self.simulate)
@@ -175,11 +181,12 @@ class MyApp(QWidget):
 
         self.stopped = False
         self.button = QPushButton()
+        # 86B75F, text 41582E, hover 7FAC5B, pressed 70994F
         self.button.setStyleSheet("""
                         QPushButton {
-                            background-color: #86B75F;
+                            background-color: #CEA07E;
                             border: none;
-                            color: #41582E;
+                            color: #775C47;
                             padding: 15px 32px;
                             text-align: center;
                             text-decoration: none;
@@ -190,10 +197,10 @@ class MyApp(QWidget):
                             border-radius: 10px;
                         }
                         QPushButton:hover {
-                            background-color: #7FAC5B;
+                            background-color: #B48A6C;
                         }
                         QPushButton:pressed {
-                            background-color: #70994F; 
+                            background-color: #9B775C; 
                         }
                     """)
         self.button.setMaximumWidth(250)
@@ -287,9 +294,8 @@ class MyApp(QWidget):
                     'position_source', 'category']
 
         self.data = response['states']
-
-        
-
+        df_sim_long = [0.0] * len(self.data)
+        df_sim_lat = [0.0] * len(self.data)
 
         for i in range(len(self.data)):
 
@@ -311,10 +317,10 @@ class MyApp(QWidget):
 
             angle = int(curr_plane.true_track-90)
             icon = folium.Icon(angle=angle, **kw)
-            
             buf = 8-len(curr_plane.icao24)
-            
-               
+
+            df_sim_long[i] = curr_plane.simulatedLongitude
+            df_sim_lat[i] = curr_plane.simulatedLatitude
 
             if curr_plane.category and curr_plane.category >=0 and curr_plane.category <= 1:
                 icon = folium.plugins.BeautifyIcon(
@@ -369,10 +375,9 @@ class MyApp(QWidget):
                         curr_plane.true_track)
                 ).add_to(marker_group)
 
-
                 folium.PolyLine(
                         locations=[((curr_plane).location_history)[:curr_plane.idx]],
-                        color="blue",
+                        color="#2B88F9",
                         tooltip="previous path",
                         weight=3,
                     ).add_to(self.m)
@@ -387,7 +392,7 @@ class MyApp(QWidget):
 
                 folium.PolyLine(
                         locations=[((curr_plane).simulation_history)[:curr_plane.idx]],
-                        color="blue",
+                        color="#D82D33",
                         tooltip="previous path",
                         weight=3,
                     ).add_to(self.m)
@@ -401,7 +406,10 @@ class MyApp(QWidget):
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
 
-        print(flight_df[['icao24', 'callsign', 'time_position', 'true_track']])
+        flight_df['long_simulated'] = df_sim_long
+        flight_df['lat_simulated'] = df_sim_lat
+
+        print(flight_df[['icao24', 'time_position', 'long', 'long_simulated', 'lat', 'lat_simulated']])
 
         map_data = io.BytesIO()
         self.m.save(map_data, close_file=False)
