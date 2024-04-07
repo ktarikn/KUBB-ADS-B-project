@@ -60,7 +60,7 @@ class WelcomeWindow(QWidget):
             "- Markers: Aircraft icons on the map provide information such as callsign, ICAO code, and angle of movement.\n"
             "- Previous Paths: Trace previous flight paths by hovering over aircraft icons or clicking on them. This reveals the historical trajectory of the selected aircraft.\n\n"
             "Note:\n"
-            "- If you encounter any issues or have questions, feel free to reach out to the project team members: Kthun, Utku, Beren, or Betül.\n\n"
+            "- If you encounter any issues or have questions, feel free to reach out to the project team members: Kemal Tarık, Utku, Beren, or Betül.\n\n"
             "Thank you for using the KUBBs-ADSB Project!\n"
             "Enjoy exploring aircraft and tracking their movements with our application."
         )
