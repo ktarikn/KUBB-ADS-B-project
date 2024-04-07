@@ -295,12 +295,22 @@ class MyApp(QWidget):
                 self.pursued = True
                 self.icaobutton.setText("Unpursue")
                 try:
+                    f1 = plt.figure(1)
                     plt.title("Longitude and Latitude Coordinates")
                     plt.xlabel("latitude")
                     plt.ylabel("longitude")  # arrayin [][0] ' ı latitude tutyoruz. diğeri de longtitu' tutyor
                     idx = plane_data.get(self.icaoInput.text()).idx
                     latitude = [plane_data.get(self.icaoInput.text()).location_history[:idx, 0]]
                     longitude = [plane_data.get(self.icaoInput.text()).location_history[:idx, 1]]
+                    plt.plot(latitude, longitude, marker='o', linestyle="-")
+                    plt.grid(True)
+                    f2 = plt.figure(2)
+                    plt.title("Simulated Data of Longitude and Latitude Coordinates")
+                    plt.xlabel("latitude")
+                    plt.ylabel("longitude")  # arrayin [][0] ' ı latitude tutyoruz. diğeri de longtitu' tutyor
+                    idx = plane_data.get(self.icaoInput.text()).idx
+                    latitude = [plane_data.get(self.icaoInput.text()).simulation_history[:idx, 0]]
+                    longitude = [plane_data.get(self.icaoInput.text()).simulation_history[:idx, 1]]
                     plt.plot(latitude, longitude, marker='o', linestyle="-")
                     plt.grid(True)
                     plt.show()
