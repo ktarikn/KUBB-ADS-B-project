@@ -134,7 +134,7 @@ class MyApp(QWidget):
         self.pursuedPlane = ""
         self.simulated = False
         self.data = data = []
-        self.setWindowTitle('Folium in PyQt Example')
+        self.setWindowTitle('𝓚𝓤𝓑𝓑-𝓐𝓓𝓢-𝓑-𝓹𝓻𝓸𝓳𝓮𝓬𝓽 𝓭𝓮𝓶𝓸')
         hbox = QHBoxLayout()
         vbox = QVBoxLayout()
 
